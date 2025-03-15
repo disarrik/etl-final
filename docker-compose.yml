@@ -16,6 +16,7 @@ services:
   airflow-webserver:
     image: apache/airflow:2.6.2
     environment:
+      - _PIP_ADDITIONAL_REQUIREMENTS=apache-airflow-providers-mongo pymongo
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
@@ -67,6 +68,7 @@ services:
       - "6432:5432"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/postgres-init.sql
 
   mongo:
     image: mongo:latest
@@ -77,4 +79,5 @@ services:
     ports:
       - "27017:27017"
     volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
       - ./mongo_data:/data/db

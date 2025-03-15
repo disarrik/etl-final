@@ -1,49 +1,49 @@
--- 1. Таблица UserSessions (сессии пользователей)
+
 CREATE TABLE UserSessions (
     session_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
     start_time TIMESTAMP NOT NULL,
     end_time TIMESTAMP,
-    pages_visited TEXT, -- Массив посещённых страниц
-    device JSONB, -- Информация об устройстве (JSON)
-    actions TEXT -- Массив действий пользователя
+    pages_visited TEXT, 
+    device JSONB, 
+    actions TEXT 
 );
 
--- 2. Таблица ProductPriceHistory (история изменения цен)
+
 CREATE TABLE ProductPriceHistory (
     product_id TEXT PRIMARY KEY,
-    price_changes JSONB, -- Массив изменений цен с датами
-    current_price NUMERIC(10, 2) NOT NULL, -- Текущая цена
-    currency TEXT NOT NULL -- Валюта
+    price_changes JSONB, 
+    current_price NUMERIC(10, 2) NOT NULL, 
+    currency TEXT NOT NULL 
 );
 
--- 3. Таблица EventLogs (логи событий)
+
 CREATE TABLE EventLogs (
     event_id TEXT PRIMARY KEY,
     timestamp TIMESTAMP NOT NULL,
     event_type TEXT NOT NULL,
-    details JSONB -- Подробности (JSON)
+    details JSONB 
 );
 
--- 4. Таблица SupportTickets (обращения в поддержку)
+
 CREATE TABLE SupportTickets (
     ticket_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
     status TEXT NOT NULL,
     issue_type TEXT NOT NULL,
-    messages JSONB, -- Массив сообщений (JSON)
+    messages JSONB, 
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
 
--- 5. Таблица UserRecommendations (рекомендации пользователям)
+
 CREATE TABLE UserRecommendations (
     user_id TEXT PRIMARY KEY,
-    recommended_products TEXT, -- Массив рекомендованных товаров
+    recommended_products TEXT, 
     last_updated TIMESTAMP NOT NULL
 );
 
--- 6. Таблица ModerationQueue (очередь модерации отзывов)
+
 CREATE TABLE ModerationQueue (
     review_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
@@ -51,16 +51,25 @@ CREATE TABLE ModerationQueue (
     review_text TEXT NOT NULL,
     rating INT NOT NULL,
     moderation_status TEXT NOT NULL,
-    flags TEXT, -- Массив флагов
+    flags TEXT, 
     submitted_at TIMESTAMP NOT NULL
 );
 
--- 7. Таблица SearchQueries (поисковые запросы)
+
 CREATE TABLE SearchQueries (
     query_id TEXT PRIMARY KEY,
     user_id TEXT NOT NULL,
     query_text TEXT NOT NULL,
     timestamp TIMESTAMP NOT NULL,
-    filters JSONB, -- Применённые фильтры (JSON)
-    results_count INT NOT NULL -- Количество найденных результатов
+    filters JSONB, 
+    results_count INT NOT NULL 
+);
+
+CREATE TABLE UserActivitySummary (
+    user_id TEXT PRIMARY KEY,  
+    total_sessions INT,        
+    total_support_tickets INT, 
+    total_search_queries INT,  
+    last_session_start TIMESTAMP,  
+    last_support_ticket_created TIMESTAMP  
 );
