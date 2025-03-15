@@ -28,7 +28,8 @@ def clear_all_data():
         "UserRecommendations",
         "ModerationQueue",
         "SearchQueries",
-        "UserActivitySummary"
+        "UserActivitySummary",
+        "ProductSummary"
     ]
 
     for table in tables:
@@ -198,6 +199,31 @@ def populate_user_activity_summary():
     cursor.close()
     conn.close()
 
+def populate_product_summary():
+    postgres_hook = PostgresHook(postgres_conn_id="postgres_default")
+    conn = postgres_hook.get_conn()
+    cursor = conn.cursor()
+
+    insert_query = """
+    INSERT INTO ProductSummary (product_id, price_changes_count, min_price, max_price, avg_price)
+    SELECT
+        product_id,
+        json_array_length(price_changes::json) AS price_changes_count,
+        MIN((elem->>'price')::NUMERIC(10, 2)) AS min_price,
+        MAX((elem->>'price')::NUMERIC(10, 2)) AS max_price,
+        AVG((elem->>'price')::NUMERIC(10, 2)) AS avg_price
+    FROM
+        ProductPriceHistory,
+        json_array_elements(price_changes::json) AS elem
+    GROUP BY
+        product_id;
+    """
+    cursor.execute(insert_query)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 default_args = {
     "owner": "airflow",
     "start_date": datetime(2025, 1, 1),
@@ -218,10 +244,16 @@ with DAG(
         task_id="transfer_mongo_to_postgres",
         python_callable=transfer_mongo_to_postgres,
     )
-    build_view = PythonOperator(
+    populate_user_activity_summary = PythonOperator(
         task_id="populate_user_activity_summary",
         python_callable=populate_user_activity_summary,
     )
+    populate_product_summary_task = PythonOperator(
+        task_id="populate_product_summary",
+        python_callable=populate_product_summary,
+    )
 
 
-    clear_all_data_task >> transfer_task >> build_view
+    migrate_pipe = clear_all_data_task >> transfer_task 
+    migrate_pipe >> populate_user_activity_summary
+    migrate_pipe >> populate_product_summary_task

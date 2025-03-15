@@ -73,3 +73,11 @@ CREATE TABLE UserActivitySummary (
     last_session_start TIMESTAMP,  
     last_support_ticket_created TIMESTAMP  
 );
+
+CREATE TABLE ProductSummary (
+    product_id TEXT PRIMARY KEY,
+    price_changes_count INT,
+    min_price NUMERIC(10, 2),
+    max_price NUMERIC(10, 2),
+    avg_price NUMERIC(10, 2)
+);
